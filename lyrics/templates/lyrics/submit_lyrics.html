@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="submit-page">
+    <h1>✍️ Submit Lyrics</h1>
+    <p>Help the ZoLyrics community! Submit missing song lyrics or corrections. All submissions are reviewed by our team before going live.</p>
+
+    {% if ADSENSE_ENABLED %}
+    <div class="ad-unit">
+        <ins class="adsbygoogle" style="display:block" data-ad-client="{{ ADSENSE_PUBLISHER_ID }}" data-ad-slot="8901234567" data-ad-format="auto"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="form-group">
+                <label>Artist Name *</label>
+                <input type="text" name="artist_name" required class="form-input" placeholder="e.g. Taylor Swift">
+            </div>
+            <div class="form-group">
+                <label>Song Title *</label>
+                <input type="text" name="song_title" required class="form-input" placeholder="e.g. Anti-Hero">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>YouTube Video ID</label>
+            <input type="text" name="youtube_id" class="form-input" placeholder="e.g. dQw4w9WgXcQ (the part after ?v=)">
+            <div class="form-hint">Optional but highly recommended — paste the YouTube video ID so we can add the video player.</div>
+        </div>
+        <div class="form-group">
+            <label>Lyrics *</label>
+            <textarea name="lyrics" required class="form-textarea" placeholder="Paste the full lyrics here. Use [Verse 1], [Chorus], [Bridge] etc. to mark sections."></textarea>
+            <div class="form-hint">Format sections like: [Verse 1], [Pre-Chorus], [Chorus], [Bridge], [Outro]</div>
+        </div>
+        <div class="form-group">
+            <label>Your Email (optional)</label>
+            <input type="email" name="email" class="form-input" placeholder="Get notified when your submission goes live">
+        </div>
+        <button type="submit" class="form-submit">🚀 Submit Lyrics</button>
+    </form>
+
+    <div style="margin-top:32px;padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;">
+        <h3 style="font-family:var(--font-display);margin-bottom:8px;">📋 Submission Guidelines</h3>
+        <ul style="color:var(--text-muted);font-size:0.88rem;line-height:2;padding-left:20px;">
+            <li>Ensure lyrics are accurate and complete</li>
+            <li>Mark song sections: [Verse 1], [Chorus], [Bridge] etc.</li>
+            <li>Do not include copyright notices or attribution text</li>
+            <li>Submissions are typically reviewed within 24-48 hours</li>
+            <li>By submitting, you agree to our Terms of Service</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

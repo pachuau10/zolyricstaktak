@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block og_image %}{% if song.cover_url %}{{ song.cover_url }}{% else %}{{ OG_IMAGE_URL }}{% endif %}{% endblock %}
+{% block twitter_image %}{% if song.cover_url %}{{ song.cover_url }}{% else %}{{ OG_IMAGE_URL }}{% endif %}{% endblock %}
+{% block og_type %}music.song{% endblock %}
+{% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MusicComposition",
+  "name": "{{ song.title }}",
+  "url": "{{ request.build_absolute_uri }}",
+  "composer": {
+    "@type": "MusicGroup",
+    "name": "{{ song.artist.name }}",
+    "url": "{{ request.scheme }}://{{ request.get_host }}{{ song.artist.get_absolute_url }}"
+  },
+  "lyrics": {
+    "@type": "CreativeWork",
+    "text": "{{ song.lyrics|truncatechars:500|escapejs }}"
+  }{% if song.youtube_id %},
+  "video": {
+    "@type": "VideoObject",
+    "name": "{{ song.title }} - {{ song.artist.name }}",
+    "embedUrl": "{{ song.youtube_embed_url }}"
+  }{% endif %}
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="song-page">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="breadcrumb">
+        <a href="/">Home</a> <span>/</span>
+        <a href="{{ song.artist.get_absolute_url }}">{{ song.artist.name }}</a> <span>/</span>
+        <span>{{ song.title }}</span>
+    </nav>
+
+    <div class="song-layout">
+        <!-- Main Column -->
+        <div class="song-main">
+            <!-- Song Header -->
+            <div class="song-header">
+                {% if song.cover_url %}
+                <img src="{{ song.cover_url }}" alt="{{ song.title }}" class="song-cover">
+                {% else %}
+                <div class="song-cover-placeholder">🎵</div>
+                {% endif %}
+                <div class="song-header-info">
+                    <div class="song-genres">
+                        {% for genre in song.genres.all %}<a href="{{ genre.get_absolute_url }}" class="genre-tag">{{ genre.name }}</a>{% endfor %}
+                    </div>
+                    <h1 class="song-title-h1">{{ song.title }}</h1>
+                    <div class="song-meta-row">
+                        <span class="meta-label">Satu</span><span class="meta-sep">:</span>
+                        <a href="{{ song.artist.get_absolute_url }}" class="song-artist-link">{{ song.artist.name }}</a>
+
+                        {% if song.composer %}
+                        <br>
+                        <span class="meta-label">Phuahtu</span><span class="meta-sep">:</span>
+                        <span class="song-composer">{{ song.composer }}</span>
+                        {% endif %}
+
+                        {% if song.album %}
+                        <br>
+                        <span class="meta-sep">·</span>
+                        <a href="{{ song.album.get_absolute_url }}" class="song-album-link">{{ song.album.title }}</a>
+                        {% endif %}
+                        {% if song.release_date %}
+                        <span class="meta-sep">·</span>
+                        <span class="song-year">{{ song.release_date.year }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="song-stats">
+                        <span class="stat-item">👁 {{ song.views }} views</span>
+                        <span class="stat-item">🌐 {{ song.language }}</span>
+                        {% if song.youtube_id %}<span class="stat-item yt-available">▶ Video available</span>{% endif %}
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="song-actions">
+                        <button class="action-btn" onclick="copyLyrics()">📋 Copy Lyrics</button>
+                        <button class="action-btn" onclick="shareSong()">📤 Share</button>
+                        <a href="/submit/?correction=1&song={{ song.pk }}" class="action-btn action-btn-outline">✏️ Fix Lyrics</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AdSense - Above Lyrics -->
+            {% if ADSENSE_ENABLED %}
+            <div class="ad-unit">
+                <ins class="adsbygoogle" style="display:block" data-ad-client="{{ ADSENSE_PUBLISHER_ID }}" data-ad-slot="4567890123" data-ad-format="auto" data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+            {% endif %}
+
+            <!-- Lyrics Box -->
+            <div class="lyrics-box" id="lyricsBox">
+                <div class="lyrics-header">
+                    <h2>📝 Lyrics</h2>
+                    <div class="lyrics-controls">
+                        <button class="font-btn" onclick="changeFontSize(-1)" title="Smaller text">A-</button>
+                        <button class="font-btn" onclick="changeFontSize(1)" title="Larger text">A+</button>
+                        <button class="font-btn" onclick="toggleLyricsTheme()" title="Toggle dark/light lyrics">🌗</button>
+                    </div>
+                </div>
+                <div class="lyrics-content" id="lyricsContent">{{ song.formatted_lyrics|safe|linebreaksbr }}</div>
+            </div>
+
+            <!-- YouTube Player -->
+            {% if song.youtube_id %}
+            <div class="youtube-player-section" id="ytSection">
+                <div class="yt-player-header">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="font-size:1rem;">🎬</span>
+                        <h2>Official Video</h2>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <button class="yt-float-btn" id="ytFloatBtn" onclick="toggleFloat()">⛶ Float</button>
+                        <button class="yt-close-float" id="ytCloseBtn" onclick="closeFloat()" style="display:none">✕</button>
+                    </div>
+                </div>
+                <div class="yt-player-wrap" id="ytPlayerWrap">
+                    <div class="yt-responsive">
+                        <iframe
+                            id="ytFrame"
+                            src="{{ song.youtube_embed_url }}&enablejsapi=1&origin={{ request.scheme }}://{{ request.get_host }}"
+                            title="{{ song.title }} - {{ song.artist.name }} (Official Video)"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- AdSense - Below Lyrics -->
+            {% if ADSENSE_ENABLED %}
+            <div class="ad-unit">
+                <ins class="adsbygoogle" style="display:block" data-ad-client="{{ ADSENSE_PUBLISHER_ID }}" data-ad-slot="5678901234" data-ad-format="auto" data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+            {% endif %}
+
+            <!-- Song Meaning -->
+            {% if song.meaning %}
+            <div class="info-card">
+                <h3>💡 About This Song</h3>
+                <p>{{ song.meaning }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Trivia -->
+            {% if song.trivia %}
+            <div class="info-card info-card-alt">
+                <h3>🎯 Interesting Facts</h3>
+                <p>{{ song.trivia }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Credits -->
+            {% if song.writers or song.producers %}
+            <div class="credits-card">
+                <h3>🎼 Credits</h3>
+                <div class="credits-grid">
+                    {% if song.writers %}<div class="credit-item"><span class="credit-label">Written by</span><span class="credit-value">{{ song.writers }}</span></div>{% endif %}
+                    {% if song.producers %}<div class="credit-item"><span class="credit-label">Produced by</span><span class="credit-value">{{ song.producers }}</span></div>{% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="song-sidebar">
+            <!-- AdSense Sidebar -->
+            {% if ADSENSE_ENABLED %}
+            <div class="ad-unit ad-sidebar sticky-ad">
+                <ins class="adsbygoogle" style="display:block" data-ad-client="{{ ADSENSE_PUBLISHER_ID }}" data-ad-slot="6789012345" data-ad-format="auto" data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+            {% endif %}
+
+            <!-- More from artist -->
+            {% if related_songs %}
+            <div class="sidebar-widget">
+                <h3 class="widget-title">More from {{ song.artist.name }}</h3>
+                <div class="related-list">
+                    {% for rs in related_songs %}
+                    <a href="{{ rs.get_absolute_url }}" class="related-item">
+                        <span class="related-icon">🎵</span>
+                        <div class="related-info">
+                            <span class="related-title">{{ rs.title }}</span>
+                            <span class="related-views">{{ rs.views }} views</span>
+                        </div>
+                        {% if rs.youtube_id %}<span class="related-yt">▶</span>{% endif %}
+                    </a>
+                    {% endfor %}
+                </div>
+                <a href="{{ song.artist.get_absolute_url }}" class="widget-view-all">All {{ song.artist.name }} lyrics →</a>
+            </div>
+            {% endif %}
+
+            <!-- You Might Also Like -->
+            {% if same_genre_songs %}
+            <div class="sidebar-widget">
+                <h3 class="widget-title">You Might Also Like</h3>
+                <div class="related-list">
+                    {% for sg in same_genre_songs %}
+                    <a href="{{ sg.get_absolute_url }}" class="related-item">
+                        <span class="related-icon">🎵</span>
+                        <div class="related-info">
+                            <span class="related-title">{{ sg.title }}</span>
+                            <span class="related-views">{{ sg.artist.name }}</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </aside>
+    </div>
+</div>
+
+<script>
+let isFloating = false;
+let dragEnabled = false;
+const isMobile = () => window.innerWidth <= 768;
+
+// Desktop: float on load. Mobile: stay inline, float only when playing.
+window.addEventListener('DOMContentLoaded', () => {
+    const section = document.getElementById('ytSection');
+    if (!section) return;
+    if (!isMobile()) makeFloat();
+});
+
+// Listen for YouTube play event — floats on mobile when user presses play
+window.addEventListener('message', (e) => {
+    try {
+        const data = JSON.parse(e.data);
+        // YouTube playerState 1 = playing
+        if (data.event === 'onStateChange' && data.info === 1) {
+            if (!isFloating && isMobile()) makeFloat();
+        }
+    } catch (_) {}
+});
+
+function toggleFloat() {
+    if (isFloating) unFloat();
+    else makeFloat();
+}
+
+function makeFloat() {
+    const el = document.getElementById('ytSection');
+    el.style.position = 'fixed';
+    el.style.bottom = '20px';
+    el.style.right = '20px';
+    el.style.width = isMobile() ? '220px' : '300px';
+    el.style.zIndex = '9999';
+    el.style.borderRadius = '12px';
+    el.style.boxShadow = '0 8px 32px rgba(0,0,0,0.3)';
+    el.style.background = '#fff';
+    el.style.overflow = 'hidden';
+    el.classList.add('is-floating');
+    document.getElementById('ytFloatBtn').textContent = '⊡ Dock';
+    document.getElementById('ytCloseBtn').style.display = 'inline-block';
+    isFloating = true;
+    if (!dragEnabled) { enableDrag(el); dragEnabled = true; }
+}
+
+function unFloat() {
+    const el = document.getElementById('ytSection');
+    el.classList.remove('is-floating');
+    el.style.cssText = '';
+    document.getElementById('ytFloatBtn').textContent = '⛶ Float';
+    document.getElementById('ytCloseBtn').style.display = 'none';
+    isFloating = false;
+}
+
+function closeFloat() {
+    unFloat();
+    document.getElementById('ytSection').style.display = 'none';
+}
+
+function enableDrag(el) {
+    const header = el.querySelector('.yt-player-header');
+    let startX, startY, startLeft, startTop, isDragging = false;
+    header.style.cursor = 'grab';
+    header.addEventListener('mousedown', start);
+    header.addEventListener('touchstart', start, { passive: true });
+    function start(e) {
+        if (!isFloating) return;
+        isDragging = true;
+        header.style.cursor = 'grabbing';
+        const t = e.touches ? e.touches[0] : e;
+        const rect = el.getBoundingClientRect();
+        startX = t.clientX; startY = t.clientY;
+        startLeft = rect.left; startTop = rect.top;
+        el.style.right = 'auto'; el.style.bottom = 'auto';
+        el.style.left = startLeft + 'px'; el.style.top = startTop + 'px';
+        document.addEventListener('mousemove', move);
+        document.addEventListener('touchmove', move, { passive: true });
+        document.addEventListener('mouseup', end);
+        document.addEventListener('touchend', end);
+    }
+    function move(e) {
+        if (!isDragging) return;
+        const t = e.touches ? e.touches[0] : e;
+        el.style.left = Math.max(0, Math.min(window.innerWidth - el.offsetWidth, startLeft + t.clientX - startX)) + 'px';
+        el.style.top  = Math.max(0, Math.min(window.innerHeight - el.offsetHeight, startTop + t.clientY - startY)) + 'px';
+    }
+    function end() {
+        isDragging = false;
+        header.style.cursor = 'grab';
+        document.removeEventListener('mousemove', move);
+        document.removeEventListener('touchmove', move);
+        document.removeEventListener('mouseup', end);
+        document.removeEventListener('touchend', end);
+    }
+}
+
+function copyLyrics() {
+    navigator.clipboard.writeText(document.getElementById('lyricsContent').innerText)
+        .then(() => showToast('Lyrics copied! 📋'));
+}
+function shareSong() {
+    if (navigator.share) navigator.share({title: document.title, url: window.location.href});
+    else { navigator.clipboard.writeText(window.location.href); showToast('Link copied! 📤'); }
+}
+let currentFontSize = 17;
+function changeFontSize(delta) {
+    currentFontSize = Math.max(13, Math.min(24, currentFontSize + delta));
+    document.getElementById('lyricsContent').style.fontSize = currentFontSize + 'px';
+}
+function toggleLyricsTheme() { document.getElementById('lyricsBox').classList.toggle('lyrics-dark-mode'); }
+function showToast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast'; t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.classList.add('toast-show'), 10);
+    setTimeout(() => { t.classList.remove('toast-show'); setTimeout(() => t.remove(), 300); }, 2500);
+}
+</script>
+{% endblock %}

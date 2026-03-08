@@ -1,0 +1,160 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ page_title|default:"ZoLyrics" }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ meta_description|default:'ZoLyrics — Find song lyrics, watch YouTube videos, discover artists and albums. The best lyrics site.' }}{% endblock %}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    <!-- Favicon -->
+
+<link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+<link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png' %}">
+<link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}">
+    <!-- Open Graph -->
+    <meta property="og:title" content="{% block og_title %}{{ page_title|default:'ZoLyrics' }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ meta_description|default:'ZoLyrics — Your #1 Source for Song Lyrics' }}{% endblock %}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:site_name" content="ZoLyrics">
+    <meta property="og:image" content="{% block og_image %}{{ OG_IMAGE_URL }}{% endblock %}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}{{ page_title|default:'ZoLyrics' }}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}{{ meta_description|default:'ZoLyrics — Your #1 Source for Song Lyrics' }}{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{{ OG_IMAGE_URL }}{% endblock %}">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- AdSense -->
+    {% if ADSENSE_ENABLED %}
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ ADSENSE_PUBLISHER_ID }}" crossorigin="anonymous"></script>
+    {% endif %}
+    
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    {% if ADSENSE_ENABLED %}
+    <div class="ad-banner-top">
+        <ins class="adsbygoogle" style="display:block" data-ad-client="{{ ADSENSE_PUBLISHER_ID }}" data-ad-slot="1234567890" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+    {% endif %}
+
+    <header class="site-header" id="siteHeader">
+        <nav class="nav-container">
+            <a href="/" class="site-logo">
+                <span class="logo-zo">Zo</span><span class="logo-lyrics">Lyrics</span>
+            </a>
+            <div class="nav-search" id="navSearch">
+                <form action="/search/" method="GET" class="search-form" autocomplete="off">
+                    <div class="search-input-wrap">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                        <input type="text" name="q" id="globalSearch" placeholder="Search songs, artists, lyrics..." value="{{ request.GET.q }}" class="search-input" autocomplete="off">
+                        <button type="submit" class="search-btn">Search</button>
+                    </div>
+                    <div class="search-suggestions" id="searchSuggestions"></div>
+                </form>
+            </div>
+            <div class="nav-links">
+                <a href="/trending/" class="nav-link">🔥 Trending</a>
+                <a href="/artists/" class="nav-link">🎤 Artists</a>
+                <a href="/submit/" class="nav-link">✍️ Submit</a>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </nav>
+        <div class="mobile-menu" id="mobileMenu">
+            <form action="/search/" method="GET" class="mobile-search-form">
+                <input type="text" name="q" placeholder="Search lyrics..." class="mobile-search-input">
+                <button type="submit">🔍</button>
+            </form>
+            <a href="/trending/">🔥 Trending</a>
+            <a href="/artists/">🎤 Artists</a>
+            <a href="/submit/">✍️ Submit Lyrics</a>
+            <a href="/about/">ℹ️ About</a>
+        </div>
+    </header>
+
+    <main class="main-content">
+        {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+            <div class="message message-{{ message.tags }}">
+                {{ message }}
+                <button onclick="this.parentElement.remove()" class="msg-close">×</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-newsletter">
+    <div class="newsletter-inner">
+        <h3>🌐Explore Chhohreivung Consultancy</h3>
+        <p>Check out our official network and other tools designed for the community.</p>
+        
+        <div class="project-links-container">
+            <a href="https://www.chhohreivung.site" target="_blank" class="newsletter-btn" style="text-decoration: none; display: inline-block; margin: 5px;">
+                Visit Official Website
+            </a>
+            </div>
+
+        <div id="newsletterMsg" class="newsletter-msg"></div>
+    </div>
+</div>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="/" class="footer-logo"><span class="logo-zo">Zo</span><span class="logo-lyrics">Lyrics</span></a>
+                <p>The best place to find song lyrics, watch music videos, and discover artists. Free. Always.</p>
+                <div class="footer-social">
+                    <a href="#" aria-label="Twitter">𝕏</a>
+                    <a href="#" aria-label="Instagram">📸</a>
+                    <a href="#" aria-label="TikTok">🎵</a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>Explore</h4>
+                <a href="/trending/">Trending Lyrics</a>
+                <a href="/artists/">All Artists</a>
+                <a href="/search/">Search Lyrics</a>
+                <a href="/submit/">Submit Lyrics</a>
+            </div>
+            <div class="footer-links">
+                <h4>Browse by Genre</h4>
+                {% for genre in footer_genres %}
+                <a href="{{ genre.get_absolute_url }}">{{ genre.icon }} {{ genre.name }}</a>
+                {% endfor %}
+            </div>
+            <div class="footer-links">
+                <h4>Company</h4>
+                <a href="/about/">About Us</a>
+                <a href="/privacy/">Privacy Policy</a>
+                <a href="/terms/">Terms of Service</a>
+                <a href="/submit/">Submit / Corrections</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 ZoLyrics. All Rights Reserved. Lyrics provided for personal use only.</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

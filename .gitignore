@@ -1,0 +1,16 @@
+# Secrets
+.env
+
+# Databases
+db.sqlite3
+
+# Python / Django
+__pycache__/
+*.py[cod]
+*$py.class
+staticfiles/
+media/
+
+# Environments
+venv/
+env/

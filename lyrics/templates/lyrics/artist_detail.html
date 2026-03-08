@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-container">
+    <nav class="breadcrumb">
+        <a href="/">Home</a> <span>/</span>
+        <a href="/artists/">Artists</a> <span>/</span>
+        <span>{{ artist.name }}</span>
+    </nav>
+
+    <!-- Artist Profile -->
+    <div class="artist-profile">
+        <div class="artist-profile-img">
+            {% if artist.image_url %}<img src="{{ artist.image_url }}" alt="{{ artist.name }}">
+            {% else %}<div class="artist-profile-placeholder">{{ artist.name|first }}</div>{% endif %}
+        </div>
+        <div class="artist-profile-info">
+            <div class="artist-profile-badges">
+                {% for genre in artist.genres.all %}<span class="genre-tag">{{ genre.name }}</span>{% endfor %}
+                {% if artist.verified %}<span class="verified-tag">✓ Verified Artist</span>{% endif %}
+            </div>
+            <h1 class="artist-profile-name">{{ artist.name }}</h1>
+            <div class="artist-profile-stats">
+                <div class="stat"><span class="stat-num">{{ artist.song_count }}</span><span class="stat-label">Songs</span></div>
+                <div class="stat"><span class="stat-num">{{ albums.count }}</span><span class="stat-label">Albums</span></div>
+                {% if artist.monthly_listeners %}<div class="stat"><span class="stat-num">{{ artist.monthly_listeners|floatformat:0 }}</span><span class="stat-label">Monthly Listeners</span></div>{% endif %}
+            </div>
+            {% if artist.bio %}<p class="artist-bio">{{ artist.bio|truncatechars:300 }}</p>{% endif %}
+        </div>
+    </div>
+
+    {% if ADSENSE_ENABLED %}
+    <div class="ad-unit ad-horizontal">
+        <ins class="adsbygoogle" style="display:block" data-ad-client="{{ ADSENSE_PUBLISHER_ID }}" data-ad-slot="7890123456" data-ad-format="auto"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+    {% endif %}
+
+    <!-- Albums -->
+    {% if albums %}
+    <section class="section">
+        <h2 class="section-title">💿 Albums</h2>
+        <div class="albums-scroller">
+            {% for album in albums %}
+            <a href="{{ album.get_absolute_url }}" class="album-scroll-card">
+                {% if album.cover_url %}<img src="{{ album.cover_url }}" alt="{{ album.title }}" loading="lazy">
+                {% else %}<div class="album-scroll-placeholder">💿</div>{% endif %}
+                <span class="album-scroll-title">{{ album.title }}</span>
+                {% if album.release_date %}<span class="album-scroll-year">{{ album.release_date.year }}</span>{% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Songs List -->
+    <section class="section">
+        <h2 class="section-title">🎵 All Songs ({{ page_obj.paginator.count }})</h2>
+        <div class="songs-table">
+            {% for song in page_obj %}
+            <a href="{{ song.get_absolute_url }}" class="songs-table-row">
+                <span class="songs-table-num">{{ forloop.counter }}</span>
+                <span class="songs-table-title">{{ song.title }}</span>
+                
+                {% if song.youtube_id %}<span class="songs-table-yt">▶</span>{% endif %}
+                <span class="songs-table-views">{{ song.views }}</span>
+            </a>
+            {% empty %}
+            <p class="no-results">No songs found.</p>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="page-btn">← Prev</a>{% endif %}
+            <span class="page-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="page-btn">Next →</a>{% endif %}
+        </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

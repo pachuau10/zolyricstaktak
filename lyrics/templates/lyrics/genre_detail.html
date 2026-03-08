@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-container">
+    <h1 style="font-family:var(--font-display);font-size:2rem;font-weight:800;margin-bottom:6px;">{{ genre.icon }} {{ genre.name }} Lyrics</h1>
+    {% if genre.description %}<p style="color:var(--text-muted);margin-bottom:24px;">{{ genre.description }}</p>{% endif %}
+
+    {% if artists %}
+    <section style="margin-bottom:40px;">
+        <h2 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;margin-bottom:16px;">Top Artists</h2>
+        <div class="artists-grid">
+            {% for artist in artists %}
+            <a href="{{ artist.get_absolute_url }}" class="artist-card">
+                {% if artist.image_url %}<img src="{{ artist.image_url }}" alt="{{ artist.name }}" class="artist-img" loading="lazy">
+                {% else %}<div class="artist-img-placeholder">{{ artist.name|first }}</div>{% endif %}
+                <div class="artist-card-info">
+                    <span class="artist-name">{{ artist.name }}</span>
+                    <span class="artist-song-count">{{ artist.song_count }} songs</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <h2 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;margin-bottom:16px;">All {{ genre.name }} Songs</h2>
+    <div class="results-list">
+        {% for song in page_obj %}
+        <a href="{{ song.get_absolute_url }}" class="result-item">
+            <div class="result-thumb">
+                {% if song.cover_url %}<img src="{{ song.cover_url }}" alt="" loading="lazy">
+                {% else %}<div class="result-thumb-placeholder">🎵</div>{% endif %}
+            </div>
+            <div class="result-info">
+                <span class="result-title">{{ song.title }}</span>
+                <span class="result-sub">{{ song.artist.name }}</span>
+            </div>
+            <span class="result-views">{{ song.views }} views</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="page-btn">← Prev</a>{% endif %}
+        <span class="page-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="page-btn">Next →</a>{% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

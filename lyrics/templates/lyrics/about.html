@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="max-width:720px;margin:48px auto;padding:0 24px;">
+    <h1 style="font-family:var(--font-display);font-size:2.5rem;font-weight:800;margin-bottom:8px;">About ZoLyrics</h1>
+    <p style="color:var(--gold);font-size:1.1rem;margin-bottom:32px;">Your #1 Source for Song Lyrics</p>
+    
+    <div style="display:flex;flex-direction:column;gap:24px;color:var(--text-muted);line-height:1.8;">
+        <p>ZoLyrics hi Mizo hla lyrics en theihna website changtlung tak a ni.</p>
+        <p>Chhohreivung Consultancy hnuaia awm a ni.</p>
+        
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:28px;">
+            <h2 style="font-family:var(--font-display);color:var(--text);font-size:1.2rem;margin-bottom:16px;">✨ What Makes ZoLyrics Special?</h2>
+            <ul style="display:flex;flex-direction:column;gap:10px;padding-left:20px;">
+                <li><strong style="color:var(--text);">YouTube Integration</strong> — Watch the official video while reading lyrics</li>
+                <li><strong style="color:var(--text);">Lightning Fast Search</strong> — Search by song, artist, or even a line you remember</li>
+                <li><strong style="color:var(--text);">Community Driven</strong> — Anyone can submit missing lyrics or corrections</li>
+                <li><strong style="color:var(--text);">Song Meanings</strong> — Understand the story behind your favorite songs</li>
+                <li><strong style="color:var(--text);">Always Free</strong> — No paywalls, no sign-ups required</li>
+            </ul>
+        </div>
+        
+        <p>Have lyrics to contribute? <a href="/submit/" style="color:var(--gold);">Submit them here</a>. Found an error? Use the "Fix Lyrics" button on any song page.</p>
+    </div>
+</div>
+{% endblock %}

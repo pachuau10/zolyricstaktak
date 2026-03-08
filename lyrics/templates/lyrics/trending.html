@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-container trending-page">
+    <div class="section-header" style="margin-bottom:24px">
+        <h1 class="section-title">🔥 Trending Lyrics</h1>
+    </div>
+    {% if ADSENSE_ENABLED %}
+    <div class="ad-unit"><ins class="adsbygoogle" style="display:block" data-ad-client="{{ ADSENSE_PUBLISHER_ID }}" data-ad-slot="9012345678" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+    {% endif %}
+    <div class="results-list">
+        {% for song in page_obj %}
+        <a href="{{ song.get_absolute_url }}" class="result-item">
+            <span style="font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:var(--text-faint);min-width:36px;text-align:center;">
+                {% with n=forloop.counter %}{% if n == 1 %}🥇{% elif n == 2 %}🥈{% elif n == 3 %}🥉{% else %}{{ n }}{% endif %}{% endwith %}
+            </span>
+            <div class="result-thumb">
+                {% if song.cover_url %}<img src="{{ song.cover_url }}" alt="" loading="lazy">
+                {% else %}<div class="result-thumb-placeholder">🎵</div>{% endif %}
+                {% if song.youtube_id %}<div class="result-yt-badge">▶</div>{% endif %}
+            </div>
+            <div class="result-info">
+                <span class="result-title">{{ song.title }}</span>
+                <span class="result-sub">{{ song.artist.name }}</span>
+            </div>
+            <div class="result-meta">
+                <span class="result-views">{{ song.views }} views</span>
+                {% if song.youtube_id %}<span class="result-has-video">📹 Video</span>{% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="page-btn">← Prev</a>{% endif %}
+        <span class="page-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="page-btn">Next →</a>{% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

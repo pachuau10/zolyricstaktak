@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-bg-pattern"></div>
+    <div class="hero-content">
+        <div class="hero-badge">🔥 New lyrics added daily</div>
+        <h1 class="hero-title">Mizo<br><span class="hero-accent">Lyrics</span></h1>
+        <p class="hero-subtitle">A mak a mak a tam, YouTube videos, leh artists — an awm e.</p>
+        <form action="/search/" method="GET" class="hero-search">
+            <div class="hero-search-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="hero-search-icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="text" name="q" placeholder="Search for a song, artist, or lyrics..." class="hero-search-input" autocomplete="off" id="heroSearch">
+                <button type="submit" class="hero-search-btn">Search</button>
+            </div>
+        </form>
+        <div class="hero-genres">
+            {% for genre in genres %}
+            <a href="{{ genre.get_absolute_url }}" class="genre-pill">{{ genre.icon }} {{ genre.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- AdSense - Below Hero -->
+{% if ADSENSE_ENABLED %}
+<div class="ad-unit ad-horizontal">
+    <ins class="adsbygoogle" style="display:block" data-ad-client="{{ ADSENSE_PUBLISHER_ID }}" data-ad-slot="2345678901" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+{% endif %}
+
+<!-- Trending Now -->
+{% if trending_songs %}
+<section class="section">
+    <div class="section-header">
+        <h2 class="section-title"><span class="section-icon">🔥</span> Trending Now</h2>
+        <a href="/trending/" class="see-all">See all →</a>
+    </div>
+    <div class="trending-list">
+        {% for song in trending_songs %}
+        <a href="{{ song.get_absolute_url }}" class="trending-item">
+            <span class="trending-rank">{{ forloop.counter }}</span>
+            <div class="trending-info">
+                <span class="trending-title">{{ song.title }}</span>
+                <span class="trending-artist">{{ song.artist.name }}</span>
+            </div>
+            <span class="trending-views">{{ song.views|floatformat:0 }} views</span>
+            {% if song.youtube_id %}<span class="trending-yt">▶</span>{% endif %}
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Songs -->
+{% if featured_songs %}
+<section class="section">
+    <div class="section-header">
+        <h2 class="section-title"><span class="section-icon">⭐</span> Featured Lyrics</h2>
+    </div>
+    <div class="songs-grid">
+        {% for song in featured_songs %}
+        <a href="{{ song.get_absolute_url }}" class="song-card">
+            <div class="song-card-inner">
+                {% if song.cover_url %}
+                <img src="{{ song.cover_url }}" alt="{{ song.title }}" class="song-card-img" loading="lazy">
+                {% else %}
+                <div class="song-card-placeholder">🎵</div>
+                {% endif %}
+                {% if song.youtube_id %}<div class="song-card-play-badge">▶</div>{% endif %}
+                <div class="song-card-body">
+                    <h3 class="song-card-title">{{ song.title }}</h3>
+                    <p class="song-card-artist">{{ song.artist.name }}</p>
+                    
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Top Artists -->
+{% if top_artists %}
+<section class="section section-dark">
+    <div class="section-container">
+        <div class="section-header">
+            <h2 class="section-title"><span class="section-icon">🎤</span> Top Artists</h2>
+            <a href="/artists/" class="see-all">All artists →</a>
+        </div>
+        <div class="artists-grid">
+            {% for artist in top_artists %}
+            <a href="{{ artist.get_absolute_url }}" class="artist-card">
+                {% if artist.image_url %}
+                <img src="{{ artist.image_url }}" alt="{{ artist.name }}" class="artist-img" loading="lazy">
+                {% else %}
+                <div class="artist-img-placeholder">{{ artist.name|first }}</div>
+                {% endif %}
+                <div class="artist-card-info">
+                    <span class="artist-name">{{ artist.name }}</span>
+                    {% if artist.verified %}<span class="verified-badge" title="Verified">✓</span>{% endif %}
+                    <span class="artist-song-count">{{ artist.song_count }} songs</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- AdSense - Mid Page -->
+{% if ADSENSE_ENABLED %}
+<div class="ad-unit ad-horizontal">
+    <ins class="adsbygoogle" style="display:block" data-ad-client="{{ ADSENSE_PUBLISHER_ID }}" data-ad-slot="3456789012" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+{% endif %}
+
+<!-- Latest Lyrics -->
+{% if latest_songs %}
+<section class="section">
+    <div class="section-header">
+        <h2 class="section-title"><span class="section-icon">🆕</span> Latest Lyrics</h2>
+    </div>
+    <div class="latest-grid">
+        {% for song in latest_songs %}
+        <a href="{{ song.get_absolute_url }}" class="latest-item">
+            <div class="latest-item-icon">{{ song.title|first }}</div>
+            <div class="latest-item-info">
+                <span class="latest-title">{{ song.title }}</span>
+                <span class="latest-artist">{{ song.artist.name }}</span>
+            </div>
+            {% if song.youtube_id %}<span class="yt-badge">▶ Video</span>{% endif %}
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}

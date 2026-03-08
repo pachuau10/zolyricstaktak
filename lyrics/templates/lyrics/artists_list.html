@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-container">
+    <div class="artists-page-header">
+        <h1 style="font-family:var(--font-display);font-size:2rem;font-weight:800;margin-bottom:8px;">🎤 All Artists</h1>
+        <p style="color:var(--text-muted);">Browse {{ page_obj.paginator.count }} artists A–Z</p>
+    </div>
+    
+    <!-- Alphabet Navigation -->
+    <nav class="alphabet-nav">
+        <a href="?letter=" class="alpha-btn {% if not current_letter %}active{% endif %}">#</a>
+        {% for letter in alphabet %}
+        <a href="?letter={{ letter }}" class="alpha-btn {% if current_letter == letter %}active{% endif %}">{{ letter }}</a>
+        {% endfor %}
+    </nav>
+
+    {% if ADSENSE_ENABLED %}
+    <div class="ad-unit"><ins class="adsbygoogle" style="display:block" data-ad-client="{{ ADSENSE_PUBLISHER_ID }}" data-ad-slot="0123456789" data-ad-format="auto"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
+    {% endif %}
+
+    <div class="artists-grid" style="margin-bottom:32px;">
+        {% for artist in page_obj %}
+        <a href="{{ artist.get_absolute_url }}" class="artist-card">
+            {% if artist.image_url %}<img src="{{ artist.image_url }}" alt="{{ artist.name }}" class="artist-img" loading="lazy">
+            {% else %}<div class="artist-img-placeholder">{{ artist.name|first }}</div>{% endif %}
+            <div class="artist-card-info">
+                <span class="artist-name">{{ artist.name }}</span>
+                {% if artist.verified %}<span class="verified-badge">✓</span>{% endif %}
+                <span class="artist-song-count">{{ artist.song_count }} songs</span>
+            </div>
+        </a>
+        {% empty %}
+        <p style="color:var(--text-muted);grid-column:1/-1;text-align:center;padding:48px;">No artists found for "{{ current_letter }}".</p>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}<a href="?letter={{ current_letter }}&page={{ page_obj.previous_page_number }}" class="page-btn">← Prev</a>{% endif %}
+        <span class="page-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a href="?letter={{ current_letter }}&page={{ page_obj.next_page_number }}" class="page-btn">Next →</a>{% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
